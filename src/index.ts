@@ -1,5 +1,6 @@
+import _Promise from './_Promise'
+
 const util = require('./util')
-const _Promise = require('./_Promise')
 const assert = require('assert')
 
 console.log(util.is([], 'array'))
@@ -10,20 +11,47 @@ console.log(util.is(function () {}, 'function'))
 console.log(util.is(/s/, 'RegExp'))
 console.log(util.is(new Date(), 'Date'))
 
-
-var p = new _Promise(function (resolve, reject) {
+var p1 = new _Promise(function (resolve, reject) {
   resolve(1)
 })
+p1.then(value => {
+  console.log('p1:', value)
+})
 
-p.then(value => {
-  console.log('value:', value)
-  return value + 1
-}, error => {
-  console.log('error1:', error)
+var p2 = new _Promise((resolve, reject) => {
+  setTimeout(() => resolve(2), 1000)
+})
+
+p2.then(value => {
+  console.log('p2:', value)
+  return value + 10
 }).then(value => {
-  console.log('value:', value)
-},(error => {
-  console.log('error2:', error)
-}))
+  console.log('p2-1:', value)
+})
 
-p.then(value => value * 10).then(value => console.log('val:', value))
+var p3 = new _Promise(function (resolve, reject) {
+  reject(1)
+})
+p3.then(null, reject => {
+  console.log('reject:', reject)
+})
+
+var p4 = new _Promise(resolve => {
+  setTimeout(() => {
+    resolve(1)
+  },  1000)
+})
+
+var p5 = new _Promise(resolve => {
+  setTimeout(() => {
+    resolve(2)
+  },  2000)
+})
+
+_Promise.race(p4, p5).then(val => {
+  console.log('race:', val)
+})
+
+_Promise.all(p4, p5).then(val => {
+  console.log('all:', val)
+})
